@@ -1,0 +1,8 @@
+{
+  "type": "module",
+  "name": "not-ssi",
+  "description": "This created for merge the multiple html files.",
+  "main": "index.js",
+  "version": "1.0.0",
+  "license": "MIT"
+}
