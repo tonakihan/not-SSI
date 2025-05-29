@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+"use strict";
 import SSI from "../index.js";
 import { fileURLToPath } from "url";
 
