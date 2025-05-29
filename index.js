@@ -4,11 +4,7 @@ import path from "path";
 import fs from "fs";
 import readline from "readline";
 
-import { fileURLToPath } from "url";
-
 const PWD = process.cwd();
-const __filename = fileURLToPath(import.meta.url);
-const ARGV = process.argv.slice(process.argv.indexOf(__filename) + 1);
 
 class SSI {
   regexp = RegExp(/\s*<!--\s*#(\w*).*-->\s*/);
@@ -21,7 +17,7 @@ class SSI {
 
   constructor(file) {
     console.log(`INFO: Works dir name (PWD) = ${PWD}`);
-    console.log(`INFO: Out put = ${this.config.output.join(path.sep)}`);
+    console.log(`INFO: Output = ${this.config.output.join(path.sep)}`);
 
     this.config.file = file;
     this.config.dirname = path.dirname(file);
@@ -93,8 +89,4 @@ class SSI {
   }
 }
 
-if (ARGV.length < 1) throw new Error("Not found argv");
-
-const ssi = new SSI(ARGV.pop());
-
-ssi.processFile();
+export default SSI;
