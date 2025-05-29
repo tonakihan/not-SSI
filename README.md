@@ -7,14 +7,19 @@ So far, available next tags:
 - include `<!--#include file=""-->`
 
 ## Launch
-Launch in cli
+Run from npm
 ```sh
-#Template: node [params_nodejs] index.js [params_of_script] path/to/your_target.html
-node index.js your_target.html
+npx not-ssi your_target.html
+```
+Or clone project and launch it in cli
+```sh
+#Template: node [params_nodejs] bin/not-ssi.mjs [params_of_script] path/to/your_target.html
+node bin/not-ssi.mjs your_target.html
 
 # Or from another place in system
-#Template: node [params_nodejs] path/to/index.js [params_of_script] your_target.html
+#Template: node [params_nodejs] path/to/bin/not-ssi.mjs [params_of_script] your_target.html
 ```
+___
 Input (target.html)
 ```html
 <html>
