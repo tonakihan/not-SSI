@@ -2,6 +2,10 @@
   "type": "module",
   "name": "not-ssi",
   "description": "This created for merge the multiple html files.",
+  "keywords": [
+    "ssi",
+    "cli"
+  ],
   "main": "index.js",
   "version": "0.0.1",
   "license": "MIT"
