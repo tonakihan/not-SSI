@@ -2,6 +2,7 @@
 
 import path from "path";
 import fs from "fs";
+import readline from "readline";
 
 import { fileURLToPath } from "url";
 
@@ -10,76 +11,75 @@ const __filename = fileURLToPath(import.meta.url);
 const ARGV = process.argv.slice(process.argv.indexOf(__filename) + 1);
 
 class SSI {
-  regexp = RegExp(/<!--\s*#(\w*).*-->/);
+  regexp = RegExp(/\s*<!--\s*#(\w*).*-->\s*/);
   config = {
     file: undefined,
     dirname: "",
-    outputDir: "build",
+    output: ["build", "output.html"],
   };
-  _listOfTarget = [];
-  _listOfChanges = [];
+  readLine;
 
   constructor(file) {
     console.log(`INFO: Works dir name (PWD) = ${PWD}`);
 
-    this._isProjectDir(`${PWD}${path.sep}package.json`);
     this.config.file = file;
     this.config.dirname = path.dirname(file);
-  }
 
-  _isProjectDir(path) {
-    if (!fs.existsSync(path)) {
-      throw new Error("Not found project in worked dir");
-    }
+    this.readLine = readline.createInterface({
+      input: fs.createReadStream(file),
+      output: fs.createWriteStream(this.config.output.join(path.sep)),
+    });
   }
 
   async processFile() {
-    const data = fs.readFileSync(this.config.file, "utf8");
-    const arrData = data.split("\n");
-    arrData.map((line, numOfLine) => {
-      if (this.regexp.test(line))
-        this._listOfTarget.push([numOfLine, line.trim()]);
-    });
+    fs.promises
+      .mkdir(this.config.output.slice(0, -1).join(path.sep), {
+        recursive: true,
+      })
+      .then((_) => {
+        return fs.promises.appendFile(this.config.output.join(path.sep), "");
+      })
+      .then(
+        this.readLine.on("line", (line) => {
+          console.debug("DBG: processFile: readline line:", line);
 
-    console.log("INFO: Found next line: \n", this._listOfTarget);
-
-    this._listOfTarget.forEach((line) => {
-      this._processLine(line);
-    });
-
-    console.log("INFO: Get next list of changes: \n", this._listOfChanges);
-    return this._listOfChanges;
+          if (this.regexp.test(line)) {
+            //this.readLine.write(this._processLine(line.trim()));
+          } else {
+            //this.readLine.write(line);
+          }
+        }),
+      )
+      .catch((e) => {
+        throw new Error(e);
+      });
   }
 
-  async replaceLineInFile() {
-    //Меняем строчки
-  }
-
-  /** @param extLine element of _listOfTarget */
-  _processLine(extLine) {
-    switch (this.regexp.exec(extLine)[1]) {
+  /** If in the function has a match instuction, then returned a new string else returned the input line.
+  @param line string. Example: '<!--#include file="none.html"-->'*/
+  _processLine(line) {
+    switch (this.regexp.exec(line)) {
       case "include":
-        include.call(this, ...extLine);
+        return include.call(this, line);
         break;
       default:
-        console.log("WARNING: Not match into line", extLine[0] + 1);
+        console.log("WARNING: Not match into line: ", line);
     }
-    return null;
+    return line;
 
-    // Return path of file in the line
-    function include(numLine, line) {
-      const local_regexp = new RegExp(/#include file="(.*)"/);
+    /** Returnes a data of file specific in the line */
+    function include(indexLine, line) {
+      const local_regexp = new RegExp(/#include file=["|'](.*)["|']/);
       // This path is relative of input file
       let filePath = local_regexp.exec(line)[1];
       // Change it
       filePath = `${this.config.dirname}${path.sep}${filePath}`;
 
       const data = fs.readFileSync(filePath, { encoding: "utf8", flag: "r" });
-      this._listOfChanges.push([numLine, data]);
 
-      //console.debug("DBG: res =", res);
+      //console.debug("DBG: data =", data);
 
-      return path || null;
+      return data || "";
     }
   }
 }
@@ -87,4 +87,5 @@ class SSI {
 if (ARGV.length < 1) throw new Error("Not found argv");
 
 const ssi = new SSI(ARGV.pop());
-ssi.processFile().then((_) => ssi.replaceLineInFile());
+
+ssi.processFile();

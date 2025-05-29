@@ -3,6 +3,6 @@
   "name": "not-ssi",
   "description": "This created for merge the multiple html files.",
   "main": "index.js",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "license": "MIT"
 }
